@@ -11,14 +11,17 @@ app.listen(port, () => {
 
 
 app.get("/:book/:chapter?/:verse?", (req, res) => {
-  let book = req.params.book
+  let full = false;
+  let book = req.params.book.toLowerCase();
   let chapter = req.params.chapter
   let verse = req.params.verse
   if (!chapter) {
     chapter = "1"
+    full = true
   }
   if (!verse) {
     verse = "1"
+    full = true
   }
   console.log(book + " " + chapter + ":" + verse)
 
@@ -39,8 +42,13 @@ app.get("/:book/:chapter?/:verse?", (req, res) => {
         console.log("undefined verse")
         res.send({ "message": "not found" })
       } else {
-        let val = value[chapter - 1][verse - 1]
-        res.send({ "result": val })
+        if (full) {
+          let full_chapter = value[chapter - 1]
+          res.send({ "result": full_chapter })
+        } else {
+          let val = value[chapter - 1][verse - 1]
+          res.send({ "result": val })
+        }
       }
     }
   });

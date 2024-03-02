@@ -15,43 +15,54 @@ function Home() {
 
 
 
-  const search = () => {
+  const search = async (e) => {
+    e.preventDefault();
+
     console.log(`http://localhost:8000/${book}/${chapter}/${verse}`)
 
-    fetch(`http://localhost:8000/${book}/${chapter}/${verse}`)
+    await fetch(`http://localhost:8000/${book}/${chapter}/${verse}`)
       .then(response => response.json())
       .then((data) => {
-        console.log(data)
-        setResult(data.result)
+        if (Array.isArray(data.result)) {
+          let text = ""
+          for (let x in data.result) {
+            let num = parseInt(x) + 1
+            text = text + "[" + num + "] " + data.result[x] + "\n"
+          }
+          setBook(book.charAt(0).toUpperCase() + book.slice(1))
+          setResult(text)
+        } else {
+          setBook(book.charAt(0).toUpperCase() + book.slice(1))
+          setResult(data.result)
+        }
       })
       .catch(error => console.error(error))
   }
 
   return (
     <div>
-      <h3>KJV</h3>
-      <Form>
+      <Form className="form">
         <Row>
           <Col>
-            <Form.Control type='text' placeholder='Book' onChange={(e) => setBook(e.target.value)} />
+            <Form.Control className="mb-3" type='text' placeholder='Book' onChange={(e) => setBook(e.target.value)} />
           </Col>
           <Col>
-            <Form.Control type='text' placeholder='Chapter' onChange={(e) => setChapter(e.target.value)} />
+            <Form.Control className="mb-3" type='text' placeholder='Chapter' onChange={(e) => setChapter(e.target.value)} />
           </Col>
           <Col>
-            <Form.Control type='text' placeholder='Verse' onChange={(e) => setVerse(e.target.value)} />
+            <Form.Control className="mb-3" type='text' placeholder='Verse' onChange={(e) => setVerse(e.target.value)} />
           </Col>
         </Row>
         <div className="d-grid gap-2">
-          <Button size="lg" type="button" onClick={search}>Search</Button>
+          <Button className="mb-3" size="lg" type="submit" onClick={search}>Search</Button>
         </div>
       </Form>
 
       {result && (
-        <Card>
-          <Card.Header>{book} {chapter}:{verse}</Card.Header>
+        <Card className="mb-3" >
+          <Card.Header id="card-header">{book} {chapter}{verse ? (":" + verse) : ("")}</Card.Header>
           <Card.Body>
-            <blockquote className="blockquote mb-0">
+            <blockquote id="verse_result" className="blockquote mb-0">
               <p>
                 {' '}
                 {result}{' '}
