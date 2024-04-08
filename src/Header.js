@@ -17,6 +17,7 @@ function Header() {
             <p>KJV</p>
           </Col>
         </div>
+        <p className="title-verse">For ever, O Lord, thy word is settled in heaven.</p>
       </Stack>
     </div>
 
