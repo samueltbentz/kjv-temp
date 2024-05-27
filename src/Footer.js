@@ -3,7 +3,9 @@
 
 function Footer() {
   return (
-    <p className="footer">created by <a href="mailto:samueltbentz@gmail.com">samuel bentz</a></p>
+    <div>
+      <p className="footer">created by <a href="https://samueltbentz.github.io">samuel bentz</a></p>
+    </div>
   )
 };
 
