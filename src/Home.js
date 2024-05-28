@@ -13,8 +13,6 @@ const Home = () => {
 
   const search = (e) => {
     e.preventDefault();
-    if (book === "psalms") { setBook("Psalm") }
-    setBook(book.toLowerCase())
     fetch(`./bible/${book}.json`,
       {
         headers: {
@@ -52,7 +50,7 @@ const Home = () => {
             if (full) {
               let full_chapter = data[book_res][chapter_res - 1]
               for (let x in full_chapter) {
-                text = text + "[" + (Number(x) + 1) + "] " + data[book_res][chapter_res - 1][x] + "\n"
+                text = text + (Number(x) + 1) + " " + data[book_res][chapter_res - 1][x] + "\n\n"
               }
               setBook(book.charAt(0).toUpperCase() + book.slice(1))
               setResult(text)

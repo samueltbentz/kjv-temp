@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/kjv-temp/static/css/main.92596bbd.css",
-    "main.js": "/kjv-temp/static/js/main.19427a27.js",
+    "main.js": "/kjv-temp/static/js/main.ada73fa9.js",
     "static/js/453.365941de.chunk.js": "/kjv-temp/static/js/453.365941de.chunk.js",
     "static/media/arms.png": "/kjv-temp/static/media/arms.a687e6a69cb34c7b3a5b.png",
     "index.html": "/kjv-temp/index.html",
     "main.92596bbd.css.map": "/kjv-temp/static/css/main.92596bbd.css.map",
-    "main.19427a27.js.map": "/kjv-temp/static/js/main.19427a27.js.map",
+    "main.ada73fa9.js.map": "/kjv-temp/static/js/main.ada73fa9.js.map",
     "453.365941de.chunk.js.map": "/kjv-temp/static/js/453.365941de.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.92596bbd.css",
-    "static/js/main.19427a27.js"
+    "static/js/main.ada73fa9.js"
   ]
 }
