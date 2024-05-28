@@ -6,8 +6,16 @@ body {
   padding: 75px;
 }
 @media only screen and (max-width: 768px) { 
-  body { padding: 5px } 
+  body { 
+    padding-left: 1px;
+    padding-right: 1px;
+    padding-top: 25px;
+  } 
+  
 }
+.mobile {
+    text-align: center;
+  }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',

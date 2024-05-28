@@ -5,7 +5,7 @@ import Image from 'react-bootstrap/Image';
 
 function Header() {
   return (
-    <div>
+    <div className="mobile">
       <Stack direction="horizontal">
         <div>
           <Image className="image" src={image1}></Image>
