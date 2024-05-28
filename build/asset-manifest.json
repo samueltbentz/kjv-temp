@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/kjv-temp/static/css/main.0c961ebc.css",
+    "main.js": "/kjv-temp/static/js/main.baf2f9c2.js",
+    "static/js/453.365941de.chunk.js": "/kjv-temp/static/js/453.365941de.chunk.js",
+    "static/media/arms.png": "/kjv-temp/static/media/arms.a687e6a69cb34c7b3a5b.png",
+    "index.html": "/kjv-temp/index.html",
+    "main.0c961ebc.css.map": "/kjv-temp/static/css/main.0c961ebc.css.map",
+    "main.baf2f9c2.js.map": "/kjv-temp/static/js/main.baf2f9c2.js.map",
+    "453.365941de.chunk.js.map": "/kjv-temp/static/js/453.365941de.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.0c961ebc.css",
+    "static/js/main.baf2f9c2.js"
+  ]
+}
