@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -14,7 +13,7 @@ const Home = () => {
 
   const search = (e) => {
     e.preventDefault();
-
+    if (book === "psalms") { setBook("Psalm") }
     fetch(`./bible/${book}.json`,
       {
         headers: {
@@ -72,13 +71,13 @@ const Home = () => {
     <div>
       <Form className="form">
         <Row>
-          <Col>
+          <Col xs={12} md={6}>
             <Form.Control className="mb-3" type='text' placeholder='Book' onChange={(e) => setBook(e.target.value)} />
           </Col>
-          <Col>
+          <Col xs={6} md={3}>
             <Form.Control className="mb-3" type='text' placeholder='Chapter' onChange={(e) => setChapter(e.target.value)} />
           </Col>
-          <Col>
+          <Col xs={6} md={3}>
             <Form.Control className="mb-3" type='text' placeholder='Verse' onChange={(e) => setVerse(e.target.value)} />
           </Col>
         </Row>

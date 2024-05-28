@@ -1,7 +1,6 @@
-import { Stack, Col } from "react-bootstrap";
+import { Stack, Col, Row } from "react-bootstrap";
 import image1 from './arms.png'
 import Image from 'react-bootstrap/Image';
-
 
 
 function Header() {
