@@ -5,6 +5,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
   padding: 75px;
 }
+@media only screen and (max-width: 768px) { 
+  body { padding: 5px } 
+}
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',

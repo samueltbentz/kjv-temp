@@ -14,6 +14,7 @@ const Home = () => {
   const search = (e) => {
     e.preventDefault();
     if (book === "psalms") { setBook("Psalm") }
+    setBook(book.toLowerCase())
     fetch(`./bible/${book}.json`,
       {
         headers: {
