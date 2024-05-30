@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -11,9 +11,22 @@ const Home = () => {
   const [verse, setVerse] = useState("");
   const [result, setResult] = useState("");
 
+  useEffect(() => {
+  }, [book, chapter, verse]);
+
+
+
   const search = (e) => {
     e.preventDefault();
-    fetch(`./bible/${book}.json`,
+
+    const formData = new FormData(e.target),
+      formDataObj = Object.fromEntries(formData.entries())
+    console.log(formDataObj)
+    let book_input = formDataObj.book.toLowerCase()
+    let chapter_input = formDataObj.chapter
+    let verse_input = formDataObj.verse
+
+    fetch(`./bible/${book_input}.json`,
       {
         headers: {
           'Content-Type': 'application/json',
@@ -23,40 +36,39 @@ const Home = () => {
       .then(response => response.json())
       .then((data) => {
         let book_res = Object.keys(data)[0];
-        let chapter_res = chapter
-        let verse_res = verse
         let text = ""
         let chapter_count = data[book_res].length
 
         let full = false;
-        if (!chapter) {
+        if (!chapter_input) {
           full = true
-          chapter_res = "1"
-          setChapter("1")
+          chapter_input = "1"
         }
-        if (!verse) {
+        if (!verse_input) {
           full = true
-          verse_res = "1"
+          verse_input = "1"
         }
-        let verse_count = data[book_res][chapter_res - 1].length
-        console.log(book_res + " " + chapter_res + ":" + verse_res)
-
-        if ((chapter_res) > chapter_count) {
+        let verse_count = data[book_res][chapter_input - 1].length
+        if ((chapter_input) > chapter_count) {
           console.log("undefined chapter")
         } else {
-          if ((verse_res) > verse_count) {
+          if ((verse_input) > verse_count) {
             console.log("undefined verse")
           } else {
             if (full) {
-              let full_chapter = data[book_res][chapter_res - 1]
+              let full_chapter = data[book_res][chapter_input - 1]
               for (let x in full_chapter) {
-                text = text + (Number(x) + 1) + " " + data[book_res][chapter_res - 1][x] + "\n\n"
+                text = text + (Number(x) + 1) + " " + data[book_res][chapter_input - 1][x] + "\n"
               }
-              setBook(book.charAt(0).toUpperCase() + book.slice(1))
+              setBook(book_res)
+              setChapter(chapter_input)
+              setVerse(verse_input)
               setResult(text)
             } else {
-              let val = data[book_res][chapter - 1][verse - 1]
-              setBook(book.charAt(0).toUpperCase() + book.slice(1))
+              let val = data[book_res][chapter_input - 1][verse_input - 1]
+              setBook(book_res)
+              setChapter(chapter_input)
+              setVerse(verse_input)
               setResult(val)
             }
           }
@@ -65,29 +77,32 @@ const Home = () => {
 
       .catch(error => console.error(error))
   }
+
+
+
   return (
 
     <div>
-      <Form className="form">
+      <Form className="form" onSubmit={search}>
         <Row>
           <Col xs={12} md={6}>
-            <Form.Control className="mb-3" type='text' placeholder='Book' onChange={(e) => setBook(e.target.value)} />
+            <Form.Control className="mb-3" type='text' name="book" placeholder='Book' />
           </Col>
           <Col xs={6} md={3}>
-            <Form.Control className="mb-3" type='text' placeholder='Chapter' onChange={(e) => setChapter(e.target.value)} />
+            <Form.Control className="mb-3" type='text' name="chapter" placeholder='Chapter' />
           </Col>
           <Col xs={6} md={3}>
-            <Form.Control className="mb-3" type='text' placeholder='Verse' onChange={(e) => setVerse(e.target.value)} />
+            <Form.Control className="mb-3" type='text' name="verse" placeholder='Verse' />
           </Col>
         </Row>
         <div className="d-grid gap-2">
-          <Button className="mb-3" size="lg" type="submit" onClick={search}>Search</Button>
+          <Button className="mb-3" size="lg" type="submit">Search</Button>
         </div>
       </Form>
 
       {result && (
         <Card className="mb-3">
-          <Card.Header id="card-header">{book} {chapter}{verse ? (":" + verse) : ("")}</Card.Header>
+          <Card.Header id="card-header">{book.charAt(0).toUpperCase() + book.slice(1)} {chapter}{verse ? (":" + verse) : ("")}</Card.Header>
           <Card.Body>
             <blockquote id="verse_result" className="blockquote mb-0">
               <p>
