@@ -9,7 +9,7 @@ const Home = () => {
   const [book, setBook] = useState("");
   const [chapter, setChapter] = useState("");
   const [verse, setVerse] = useState("");
-  const [result, setResult] = useState("");
+  const [result, setResult] = useState([]);
 
   useEffect(() => {
   }, [book, chapter, verse]);
@@ -58,18 +58,22 @@ const Home = () => {
             if (full) {
               let full_chapter = data[book_res][chapter_input - 1]
               for (let x in full_chapter) {
-                text = text + (Number(x) + 1) + " " + data[book_res][chapter_input - 1][x] + "\n"
+                text = text + data[book_res][chapter_input - 1][x] + "\n"
               }
+              let textArr = text.split('\n');
+              textArr.pop()
+              console.log(textArr)
               setBook(book_res)
               setChapter(chapter_input)
               setVerse(verse_input)
-              setResult(text)
+              setResult(textArr)
             } else {
               let val = data[book_res][chapter_input - 1][verse_input - 1]
+              let arr = [val]
               setBook(book_res)
               setChapter(chapter_input)
               setVerse(verse_input)
-              setResult(val)
+              setResult(arr)
             }
           }
         }
@@ -77,8 +81,6 @@ const Home = () => {
 
       .catch(error => console.error(error))
   }
-
-
 
   return (
 
@@ -100,21 +102,34 @@ const Home = () => {
         </div>
       </Form>
 
-      {result && (
+      {result.length > 0 && result.length !== 1 && (
         <Card className="mb-3">
           <Card.Header id="card-header">{book.charAt(0).toUpperCase() + book.slice(1)} {chapter}{verse ? (":" + verse) : ("")}</Card.Header>
           <Card.Body>
             <blockquote id="verse_result" className="blockquote mb-0">
-              <p>
-                {' '}
-                {result}{' '}
-              </p>
+              {result.map((item, index) => (
+                <p className="scripture"><span>{index + 1}</span> {item}</p>
+              ))}
             </blockquote>
           </Card.Body>
         </Card>
       )}
+      {result.length === 1 && (
+        <Card className="mb-3">
+          <Card.Header id="card-header">{book.charAt(0).toUpperCase() + book.slice(1)} {chapter}{verse ? (":" + verse) : ("")}</Card.Header>
+          <Card.Body>
+            <blockquote id="verse_result" className="blockquote mb-0">
+              {result.map((item, index) => (
+                <p className="scripture">{item}</p>
+              ))}
+            </blockquote>
+          </Card.Body>
+        </Card>
+      )}
+
     </div>
   )
+
 
 }
 

@@ -1,6 +1,6 @@
 body {
   margin: 15;
-  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-family: 'Times New Roman', Times, serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   padding: 75px;
@@ -17,6 +17,11 @@ body {
     text-align: center;
   }
 
+  span{
+    color: grey;
+    font-size: medium;
+  }
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
@@ -24,8 +29,9 @@ code {
 
 #verse_result{
   white-space: pre-line;
-  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-family: 'Times New Roman', Times, serif;
 }
+
 #card-header{
   font-size: large;
   font-weight: bold;
@@ -47,6 +53,9 @@ code {
 .header {
   text-align: center;
   font-size: large;
+}
+.scripture{
+  line-height: 1.75;
 }
 .footer {
   font-size: small;
