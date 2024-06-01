@@ -22,7 +22,7 @@ const Home = () => {
     const formData = new FormData(e.target),
       formDataObj = Object.fromEntries(formData.entries())
     console.log(formDataObj)
-    let book_input = formDataObj.book.toLowerCase()
+    let book_input = formDataObj.book.toLowerCase().replace(/ /g, '')
     let chapter_input = formDataObj.chapter
     let verse_input = formDataObj.verse
 
@@ -82,6 +82,18 @@ const Home = () => {
       .catch(error => console.error(error))
   }
 
+  function bookName(entry) {
+    let res = ""
+    if (!isNaN(+entry.charAt(0))) {
+      res = entry.charAt(0) + " " + entry.charAt(1).toUpperCase() + entry.slice(2)
+
+    } else {
+      res = entry.charAt(0).toUpperCase() + entry.slice(1)
+
+    }
+    return res
+  }
+
   return (
 
     <div>
@@ -104,7 +116,7 @@ const Home = () => {
 
       {result.length > 0 && result.length !== 1 && (
         <Card className="mb-3">
-          <Card.Header id="card-header">{book.charAt(0).toUpperCase() + book.slice(1)} {chapter}{verse ? (":" + verse) : ("")}</Card.Header>
+          <Card.Header id="card-header">{bookName(book)} {chapter}</Card.Header>
           <Card.Body>
             <blockquote id="verse_result" className="blockquote mb-0">
               {result.map((item, index) => (
@@ -116,7 +128,7 @@ const Home = () => {
       )}
       {result.length === 1 && (
         <Card className="mb-3">
-          <Card.Header id="card-header">{book.charAt(0).toUpperCase() + book.slice(1)} {chapter}{verse ? (":" + verse) : ("")}</Card.Header>
+          <Card.Header id="card-header">{bookName(book)} {chapter}{verse ? (":" + verse) : ("")}</Card.Header>
           <Card.Body>
             <blockquote id="verse_result" className="blockquote mb-0">
               {result.map((item, index) => (
