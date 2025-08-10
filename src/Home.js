@@ -1,32 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
+import Container from 'react-bootstrap/Container';
 
 const Home = () => {
   const [book, setBook] = useState("");
   const [chapter, setChapter] = useState("");
   const [verse, setVerse] = useState("");
-  const [result, setResult] = useState([]);
-
-  useEffect(() => {
-  }, [book, chapter, verse]);
-
-
+  const [result, setResult] = useState("");
 
   const search = (e) => {
     e.preventDefault();
 
-    const formData = new FormData(e.target),
-      formDataObj = Object.fromEntries(formData.entries())
-    console.log(formDataObj)
-    let book_input = formDataObj.book.toLowerCase().replace(/ /g, '')
-    let chapter_input = formDataObj.chapter
-    let verse_input = formDataObj.verse
-
-    fetch(`./bible/${book_input}.json`,
+    fetch(`./bible/${book}.json`,
       {
         headers: {
           'Content-Type': 'application/json',
@@ -36,113 +25,100 @@ const Home = () => {
       .then(response => response.json())
       .then((data) => {
         let book_res = Object.keys(data)[0];
-        let text = ""
-        let chapter_count = data[book_res].length
+        let chapter_res = chapter;
+        let verse_res = verse;
+        let text = "";
+        let chapter_count = data[book_res].length;
 
         let full = false;
-        if (!chapter_input) {
-          full = true
-          chapter_input = "1"
+        if (!chapter) {
+          full = true;
+          chapter_res = "1";
+          setChapter("1");
         }
-        if (!verse_input) {
-          full = true
-          verse_input = "1"
+        if (!verse) {
+          full = true;
+          verse_res = "1";
         }
-        let verse_count = data[book_res][chapter_input - 1].length
-        if ((chapter_input) > chapter_count) {
-          console.log("undefined chapter")
+        let verse_count = data[book_res][chapter_res - 1].length;
+        console.log(book_res + " " + chapter_res + ":" + verse_res);
+
+        if ((chapter_res) > chapter_count) {
+          console.log("undefined chapter");
         } else {
-          if ((verse_input) > verse_count) {
-            console.log("undefined verse")
+          if ((verse_res) > verse_count) {
+            console.log("undefined verse");
           } else {
             if (full) {
-              let full_chapter = data[book_res][chapter_input - 1]
+              let full_chapter = data[book_res][chapter_res - 1];
               for (let x in full_chapter) {
-                text = text + data[book_res][chapter_input - 1][x] + "\n"
+                text = text + "[" + (Number(x) + 1) + "] " + data[book_res][chapter_res - 1][x] + "\n";
               }
-              let textArr = text.split('\n');
-              textArr.pop()
-              console.log(textArr)
-              setBook(book_res)
-              setChapter(chapter_input)
-              setVerse(verse_input)
-              setResult(textArr)
+              setBook(book.charAt(0).toUpperCase() + book.slice(1));
+              setResult(text);
             } else {
-              let val = data[book_res][chapter_input - 1][verse_input - 1]
-              let arr = [val]
-              setBook(book_res)
-              setChapter(chapter_input)
-              setVerse(verse_input)
-              setResult(arr)
+              let val = data[book_res][chapter - 1][verse - 1];
+              setBook(book.charAt(0).toUpperCase() + book.slice(1));
+              setResult(val);
             }
           }
         }
       })
 
-      .catch(error => console.error(error))
-  }
-
-  function bookName(entry) {
-    let res = ""
-    if (!isNaN(+entry.charAt(0))) {
-      res = entry.charAt(0) + " " + entry.charAt(1).toUpperCase() + entry.slice(2)
-
-    } else {
-      res = entry.charAt(0).toUpperCase() + entry.slice(1)
-
-    }
-    return res
-  }
+      .catch(error => console.error(error));
+  };
 
   return (
-
-    <div>
+    <Container className="py-5">
+      <h1 className="text-center mb-4">Bible Verse Search</h1>
       <Form className="form" onSubmit={search}>
-        <Row>
-          <Col xs={12} md={6}>
-            <Form.Control className="mb-3" type='text' name="book" placeholder='Book' />
+        <Row className="mb-3">
+          <Col md={4} sm={12}>
+            <Form.Control
+              type='text'
+              placeholder='Book'
+              aria-label="Book"
+              onChange={(e) => setBook(e.target.value)}
+            />
           </Col>
-          <Col xs={6} md={3}>
-            <Form.Control className="mb-3" type='text' name="chapter" placeholder='Chapter' />
+          <Col md={4} sm={6}>
+            <Form.Control
+              type='text'
+              placeholder='Chapter'
+              aria-label="Chapter"
+              onChange={(e) => setChapter(e.target.value)}
+            />
           </Col>
-          <Col xs={6} md={3}>
-            <Form.Control className="mb-3" type='text' name="verse" placeholder='Verse' />
+          <Col md={4} sm={6}>
+            <Form.Control
+              type='text'
+              placeholder='Verse'
+              aria-label="Verse"
+              onChange={(e) => setVerse(e.target.value)}
+            />
           </Col>
         </Row>
         <div className="d-grid gap-2">
-          <Button className="mb-3" size="lg" type="submit">Search</Button>
+          <Button className="mb-3" size="lg" type="submit" variant="primary">Search</Button>
         </div>
       </Form>
 
-      {result.length > 0 && result.length !== 1 && (
-        <Card className="mb-3">
-          <Card.Header id="card-header">{bookName(book)} {chapter}</Card.Header>
+      {result && (
+        <Card className="mb-3 shadow-sm">
+          <Card.Header id="card-header" className="bg-primary text-white text-center">
+            {book} {chapter}{verse ? (":" + verse) : ("")}
+          </Card.Header>
           <Card.Body>
             <blockquote id="verse_result" className="blockquote mb-0">
-              {result.map((item, index) => (
-                <p className="scripture"><span>{index + 1}</span> {item}</p>
-              ))}
+              <p className="text-justify">
+                {result}
+              </p>
             </blockquote>
           </Card.Body>
         </Card>
       )}
-      {result.length === 1 && (
-        <Card className="mb-3">
-          <Card.Header id="card-header">{bookName(book)} {chapter}{verse ? (":" + verse) : ("")}</Card.Header>
-          <Card.Body>
-            <blockquote id="verse_result" className="blockquote mb-0">
-              {result.map((item, index) => (
-                <p className="scripture">{item}</p>
-              ))}
-            </blockquote>
-          </Card.Body>
-        </Card>
-      )}
-
-    </div>
-  )
-
-
-}
+    </Container>
+  );
+};
 
 export default Home;
