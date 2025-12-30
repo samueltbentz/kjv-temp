@@ -192,7 +192,7 @@ useEffect(() => {
         style={{ zIndex: 1000 }}
       >
         <Container fluid className="px-3 py-2">
-          <Navbar.Brand className="fw-bold fs-4">KJV Reader</Navbar.Brand>
+          <Navbar.Brand className="fw-bold fs-4"></Navbar.Brand>
           <div className="d-flex align-items-center gap-3">
             <Button
               variant="outline-secondary"
