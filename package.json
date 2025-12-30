@@ -1,7 +1,7 @@
 {
   "name": "kjv",
   "version": "0.1.0",
-  "homepage": "https://samueltbentz.github.io/kjv-temp",
+  "homepage": "https://samueltbentz.github.io/kjv-temp/",
   "private": false,
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
