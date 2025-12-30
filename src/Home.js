@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Container, Row, Col, Form, Button, Card, Navbar } from "react-bootstrap";
 import { BsSunFill, BsMoonFill } from "react-icons/bs"; // npm install react-icons
 
@@ -103,38 +103,63 @@ const Home = () => {
     }
   }, []);
 
-const loadChapter = async () => {
-    if (!book || !chapter) return;
-    const bookKey = book.toLowerCase();
-    const url = `./bible/${bookKey}.json`;
+const loadChapter = useCallback(async () => {
+  if (!book || !chapter) return;
 
-    try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      const bookName = Object.keys(data)[0];
-      const chapIndex = Number(chapter) - 1;
+  const bookKey = book.toLowerCase();
+  const url = `./bible/${bookKey}.json`;
 
-      if (chapIndex < 0 || chapIndex >= data[bookName].length) {
-        setResult("Chapter not found");
-        return;
-      }
+  console.log("Attempting to fetch:", url);
 
-      const verses = data[bookName][chapIndex];
-      let text = verse
-        ? verses[Number(verse) - 1] || "Verse not found"
-        : verses.map((v, i) => `[${i + 1}] ${v}`).join("\n");
-
-      setDisplayTitle(
-        `${bookName.charAt(0).toUpperCase() + bookName.slice(1)} ${chapter}${
-          verse ? `:${verse}` : ""
-        }`
-      );
-      setResult(text);
-    } catch (err) {
-      setResult("Error loading content");
+  try {
+    const res = await fetch(url);
+    
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status} - ${res.statusText} (tried: ${url})`);
     }
-  };
+
+    const contentType = res.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      throw new Error(`Response is not JSON! Got: ${contentType}`);
+    }
+
+    const data = await res.json();
+    const bookName = Object.keys(data)[0];
+    const chapIndex = Number(chapter) - 1;
+
+    if (chapIndex < 0 || chapIndex >= data[bookName].length) {
+      setResult("Chapter not found");
+      return;
+    }
+
+    const verses = data[bookName][chapIndex];
+    let text = "";
+
+    if (verse) {
+      const vIndex = Number(verse) - 1;
+      if (vIndex >= 0 && vIndex < verses.length) {
+        text = verses[vIndex];
+      } else {
+        text = "Verse not found";
+      }
+    } else {
+      text = verses
+        .map((v, i) => `[${i + 1}] ${v}`)
+        .join("\n");
+    }
+
+    setDisplayTitle(
+      `${bookName.charAt(0).toUpperCase() + bookName.slice(1)} ${chapter}${
+        verse ? `:${verse}` : ""
+      }`
+    );
+    setResult(text);
+  } catch (err) {
+    console.error("Fetch failed:", err);
+    setResult(`Error: ${err.message}\n\nCheck console for details.`);
+  }
+}, [book, chapter, verse, setResult, setDisplayTitle]);
+// ↑ These are all the values/state setters used inside loadChapter
 
 
   // Auto-load chapter when book changes
