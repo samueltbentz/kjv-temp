@@ -117,7 +117,7 @@ const Home = () => {
   const loadChapter = async () => {
     if (!book || !chapter) return;
     const bookKey = book.toLowerCase();
-    const url = `./kjv-temp/bible/${bookKey}.json`;
+    const url = `./bible/${bookKey}.json`;
 
     try {
       const res = await fetch(url);
