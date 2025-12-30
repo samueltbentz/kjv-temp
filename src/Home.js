@@ -103,18 +103,7 @@ const Home = () => {
     }
   }, []);
 
-  // Auto-load chapter when book changes
-  useEffect(() => {
-    if (book && maxChapters > 0) {
-      setChapter("1");
-      setVerse("");
-      loadChapter();
-    } else {
-      setChapter("");
-    }
-  }, [book, maxChapters]);
-
-  const loadChapter = async () => {
+const loadChapter = async () => {
     if (!book || !chapter) return;
     const bookKey = book.toLowerCase();
     const url = `./bible/${bookKey}.json`;
@@ -147,6 +136,18 @@ const Home = () => {
     }
   };
 
+
+  // Auto-load chapter when book changes
+// Then your useEffect:
+useEffect(() => {
+  if (book && maxChapters > 0) {
+    setChapter("1");
+    setVerse("");
+    loadChapter();
+  }
+}, [book, maxChapters, loadChapter]);
+
+  
   const prevChapter = () => {
     const num = Number(chapter);
     if (num > 1) setChapter(String(num - 1));
