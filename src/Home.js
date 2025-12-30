@@ -2,8 +2,6 @@ import { useState, useEffect, useCallback } from "react";
 import { Container, Row, Col, Form, Button, Card, Navbar } from "react-bootstrap";
 import { BsSunFill, BsMoonFill } from "react-icons/bs"; // npm install react-icons
 
-
-
 const bibleBooks = [
   { id: "genesis", display: "Genesis", chapters: 50 },
   { id: "exodus", display: "Exodus", chapters: 40 },
@@ -80,7 +78,7 @@ const Home = () => {
   const [result, setResult] = useState("");
   const [displayTitle, setDisplayTitle] = useState("");
 
-  // Dark mode state
+  // Dark mode
   const [darkMode, setDarkMode] = useState(
     window.matchMedia("(prefers-color-scheme: dark)").matches
   );
@@ -88,14 +86,14 @@ const Home = () => {
   const selectedBookData = bibleBooks.find((b) => b.id === book);
   const maxChapters = selectedBookData?.chapters ?? 0;
 
-  // Toggle dark mode & save preference
+  // Toggle dark mode & persist
   const toggleDarkMode = () => {
     const newMode = !darkMode;
     setDarkMode(newMode);
     localStorage.setItem("theme", newMode ? "dark" : "light");
   };
 
-  // Load saved preference or system default on mount
+  // Load saved theme preference
   useEffect(() => {
     const saved = localStorage.getItem("theme");
     if (saved) {
@@ -103,96 +101,99 @@ const Home = () => {
     }
   }, []);
 
-const loadChapter = useCallback(async () => {
-  if (!book || !chapter) return;
+  // Fetch function - stable with useCallback
+  const loadChapter = useCallback(async () => {
+    if (!book || !chapter) return;
 
-  const bookKey = book.toLowerCase();
-  const url = `./bible/${bookKey}.json`;
+    const bookKey = book.toLowerCase();
+    const url = `./bible/${bookKey}.json`;
 
-  console.log("Attempting to fetch:", url);
+    console.log("Attempting to fetch:", url);
 
-  try {
-    const res = await fetch(url);
-    
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status} - ${res.statusText} (tried: ${url})`);
-    }
-
-    const contentType = res.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-      throw new Error(`Response is not JSON! Got: ${contentType}`);
-    }
-
-    const data = await res.json();
-    const bookName = Object.keys(data)[0];
-    const chapIndex = Number(chapter) - 1;
-
-    if (chapIndex < 0 || chapIndex >= data[bookName].length) {
-      setResult("Chapter not found");
-      return;
-    }
-
-    const verses = data[bookName][chapIndex];
-    let text = "";
-
-    if (verse) {
-      const vIndex = Number(verse) - 1;
-      if (vIndex >= 0 && vIndex < verses.length) {
-        text = verses[vIndex];
-      } else {
-        text = "Verse not found";
+    try {
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status} - ${res.statusText} (tried: ${url})`);
       }
-    } else {
-      text = verses
-        .map((v, i) => `[${i + 1}] ${v}`)
-        .join("\n");
+
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error(`Response is not JSON! Got: ${contentType}`);
+      }
+
+      const data = await res.json();
+      const bookName = Object.keys(data)[0];
+      const chapIndex = Number(chapter) - 1;
+
+      if (chapIndex < 0 || chapIndex >= data[bookName].length) {
+        setResult("Chapter not found");
+        return;
+      }
+
+      const verses = data[bookName][chapIndex];
+      let text = "";
+
+      if (verse) {
+        const vIndex = Number(verse) - 1;
+        if (vIndex >= 0 && vIndex < verses.length) {
+          text = verses[vIndex];
+        } else {
+          text = "Verse not found";
+        }
+      } else {
+        text = verses
+          .map((v, i) => `[${i + 1}] ${v}`)
+          .join("\n");
+      }
+
+      setDisplayTitle(
+        `${bookName.charAt(0).toUpperCase() + bookName.slice(1)} ${chapter}${
+          verse ? `:${verse}` : ""
+        }`
+      );
+      setResult(text);
+    } catch (err) {
+      console.error("Fetch failed:", err);
+      setResult(`Error: ${err.message}\n\nCheck console for details.`);
     }
+  }, [book, chapter, verse]);
 
-    setDisplayTitle(
-      `${bookName.charAt(0).toUpperCase() + bookName.slice(1)} ${chapter}${
-        verse ? `:${verse}` : ""
-      }`
-    );
-    setResult(text);
-  } catch (err) {
-    console.error("Fetch failed:", err);
-    setResult(`Error: ${err.message}\n\nCheck console for details.`);
-  }
-}, [book, chapter, verse, setResult, setDisplayTitle]);
-// ↑ These are all the values/state setters used inside loadChapter
+  // Auto-load when book, chapter, or verse changes
+  useEffect(() => {
+    if (book && maxChapters > 0 && chapter) {
+      loadChapter();
+    }
+  }, [book, chapter, verse, maxChapters, loadChapter]);
 
-
-  // Auto-load chapter when book changes
-// Then your useEffect:
-useEffect(() => {
-  if (book && maxChapters > 0) {
-    setChapter("1");
+  // Reset verse when chapter changes
+  useEffect(() => {
     setVerse("");
-    loadChapter();
-  }
-}, [book, maxChapters, loadChapter]);
+  }, [chapter]);
 
-  
   const prevChapter = () => {
     const num = Number(chapter);
-    if (num > 1) setChapter(String(num - 1));
+    if (num > 1) {
+      setChapter(String(num - 1));
+    }
   };
 
   const nextChapter = () => {
     const num = Number(chapter);
-    if (num < maxChapters) setChapter(String(num + 1));
+    if (num < maxChapters) {
+      setChapter(String(num + 1));
+    }
   };
 
   return (
     <>
-      {/* Modern Navbar with Dark Mode Toggle */}
+      {/* Navbar with Dark Mode Toggle */}
       <Navbar
         expand="sm"
         className={`sticky-top ${darkMode ? "bg-dark" : "bg-light"} border-bottom shadow-sm`}
         style={{ zIndex: 1000 }}
       >
         <Container fluid className="px-3 py-2">
-          <Navbar.Brand className="fw-bold fs-4"></Navbar.Brand>
+          <Navbar.Brand className="fw-bold fs-4">KJV Reader</Navbar.Brand>
           <div className="d-flex align-items-center gap-3">
             <Button
               variant="outline-secondary"
@@ -249,7 +250,7 @@ useEffect(() => {
           <Col xs={6} sm={3} md={2}>
             <Form.Control
               size="lg"
-              placeholder="Verse"
+              placeholder="Verse (optional)"
               value={verse}
               onChange={(e) => setVerse(e.target.value)}
               className="shadow-sm"
@@ -257,7 +258,7 @@ useEffect(() => {
           </Col>
         </Row>
 
-        {/* Prev/Next + Load */}
+        {/* Navigation buttons */}
         <div className="d-flex flex-wrap gap-3 justify-content-center mb-5">
           <Button
             variant={darkMode ? "outline-light" : "outline-dark"}
@@ -265,16 +266,6 @@ useEffect(() => {
             disabled={!chapter || Number(chapter) <= 1}
           >
             ← Previous Chapter
-          </Button>
-
-          <Button
-            size="lg"
-            variant="primary"
-            onClick={loadChapter}
-            disabled={!book || !chapter}
-            className="px-5"
-          >
-            Load
           </Button>
 
           <Button
@@ -286,7 +277,7 @@ useEffect(() => {
           </Button>
         </div>
 
-        {/* Result */}
+        {/* Result display */}
         {result && (
           <Card
             className={`shadow-lg border-0 ${
