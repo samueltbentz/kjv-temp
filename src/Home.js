@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Container, Row, Col, Form, Button, Card, Navbar } from "react-bootstrap";
-import { BsSunFill, BsMoonFill } from "react-icons/bs"; // npm install react-icons
+import { BsSunFill, BsMoonFill } from "react-icons/bs";
 
 const bibleBooks = [
   { id: "genesis", display: "Genesis", chapters: 50 },
@@ -21,7 +21,7 @@ const bibleBooks = [
   { id: "nehemiah", display: "Nehemiah", chapters: 13 },
   { id: "esther", display: "Esther", chapters: 10 },
   { id: "job", display: "Job", chapters: 42 },
-  { id: "psalms", display: "Psalms", chapters: 150 },
+  { id: "psalm", display: "Psalms", chapters: 150 },
   { id: "proverbs", display: "Proverbs", chapters: 31 },
   { id: "ecclesiastes", display: "Ecclesiastes", chapters: 12 },
   { id: "songofsolomon", display: "Song of Solomon", chapters: 8 },
@@ -78,150 +78,114 @@ const Home = () => {
   const [result, setResult] = useState("");
   const [displayTitle, setDisplayTitle] = useState("");
 
-  // Dark mode
-  const [darkMode, setDarkMode] = useState(
-    window.matchMedia("(prefers-color-scheme: dark)").matches
-  );
-
   const selectedBookData = bibleBooks.find((b) => b.id === book);
   const maxChapters = selectedBookData?.chapters ?? 0;
 
-  // Toggle dark mode & persist
-  const toggleDarkMode = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    localStorage.setItem("theme", newMode ? "dark" : "light");
-  };
-
-  // Load saved theme preference
-  useEffect(() => {
-    const saved = localStorage.getItem("theme");
-    if (saved) {
-      setDarkMode(saved === "dark");
-    }
-  }, []);
-
-  // Fetch function - stable with useCallback
+  // Fetch function
   const loadChapter = useCallback(async () => {
-    if (!book || !chapter) return;
+  if (!book || !chapter) return;
 
-    const bookKey = book.toLowerCase();
-    const url = `./bible/${bookKey}.json`;
+  const bookKey = book.toLowerCase();
+  const url = `./bible/${bookKey}.json`;
 
-    console.log("Attempting to fetch:", url);
+  console.log("Attempting to fetch:", url);
 
-    try {
-      const res = await fetch(url);
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status} - ${res.statusText} (tried: ${url})`);
-      }
-
-      const contentType = res.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        throw new Error(`Response is not JSON! Got: ${contentType}`);
-      }
-
-      const data = await res.json();
-      const bookName = Object.keys(data)[0];
-      const chapIndex = Number(chapter) - 1;
-
-      if (chapIndex < 0 || chapIndex >= data[bookName].length) {
-        setResult("Chapter not found");
-        return;
-      }
-
-      const verses = data[bookName][chapIndex];
-      let text = "";
-
-      if (verse) {
-        const vIndex = Number(verse) - 1;
-        if (vIndex >= 0 && vIndex < verses.length) {
-          text = verses[vIndex];
-        } else {
-          text = "Verse not found";
-        }
-      } else {
-        text = verses
-          .map((v, i) => `[${i + 1}] ${v}`)
-          .join("\n");
-      }
-
-      setDisplayTitle(
-        `${bookName.charAt(0).toUpperCase() + bookName.slice(1)} ${chapter}${
-          verse ? `:${verse}` : ""
-        }`
-      );
-      setResult(text);
-    } catch (err) {
-      console.error("Fetch failed:", err);
-      setResult(`Error: ${err.message}\n\nCheck console for details.`);
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status} - ${res.statusText} (tried: ${url})`);
     }
-  }, [book, chapter, verse]);
 
-  // Auto-load when book, chapter, or verse changes
+    const contentType = res.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      throw new Error(`Response is not JSON! Got: ${contentType}`);
+    }
+
+    const data = await res.json();
+    const bookNameFromJson = Object.keys(data)[0]; // still used for data access
+    const chapIndex = Number(chapter) - 1;
+
+    if (chapIndex < 0 || chapIndex >= data[bookNameFromJson].length) {
+      setResult("Chapter not found");
+      return;
+    }
+
+    const verses = data[bookNameFromJson][chapIndex];
+    let text = "";
+
+    if (verse) {
+      const vIndex = Number(verse) - 1;
+      if (vIndex >= 0 && vIndex < verses.length) {
+        text = verses[vIndex];
+      } else {
+        text = "Verse not found";
+      }
+    } else {
+      text = verses
+  .map((v, i) => `<span class="verse-number">[${i + 1}]</span>${v}`)
+  .join("\n");
+    }
+
+    // Use the pretty display name from bibleBooks
+    const currentBookDisplay = bibleBooks.find(b => b.id === book)?.display || bookNameFromJson;
+
+    setDisplayTitle(
+  `${
+    (bibleBooks.find(b => b.id === book)?.display || bookNameFromJson)
+      .replace(/^Psalms$/, "Psalm")
+  } ${chapter}${verse ? `:${verse}` : ""}`
+);
+    setResult(text);
+  } catch (err) {
+    console.error("Fetch failed:", err);
+    setResult(`Error: ${err.message}\n\nCheck console for details.`);
+  }
+}, [book, chapter, verse, bibleBooks]); // add bibleBooks to deps if needed (it's constant)
+
+  // Reset chapter to 1 and verse when book changes
   useEffect(() => {
-    if (book && maxChapters > 0 && chapter) {
+    if (book) {
+      setChapter("1");
+      setVerse("");
+    }
+  }, [book]);
+
+  // Auto-load content when relevant state changes
+  useEffect(() => {
+    if (book && chapter && maxChapters > 0) {
       loadChapter();
     }
   }, [book, chapter, verse, maxChapters, loadChapter]);
 
-  // Reset verse when chapter changes
-  useEffect(() => {
-    setVerse("");
-  }, [chapter]);
-
   const prevChapter = () => {
     const num = Number(chapter);
-    if (num > 1) {
-      setChapter(String(num - 1));
-    }
+    if (num > 1) setChapter(String(num - 1));
   };
 
   const nextChapter = () => {
     const num = Number(chapter);
-    if (num < maxChapters) {
-      setChapter(String(num + 1));
-    }
+    if (num < maxChapters) setChapter(String(num + 1));
   };
 
   return (
     <>
-      {/* Navbar with Dark Mode Toggle */}
-      <Navbar
-        expand="sm"
-        className={`sticky-top ${darkMode ? "bg-dark" : "bg-light"} border-bottom shadow-sm`}
-        style={{ zIndex: 1000 }}
-      >
-        <Container fluid className="px-3 py-2">
-          <Navbar.Brand className="fw-bold fs-4">KJV Reader</Navbar.Brand>
-          <div className="d-flex align-items-center gap-3">
-            <Button
-              variant="outline-secondary"
-              size="sm"
-              className="d-flex align-items-center gap-2"
-              onClick={toggleDarkMode}
-            >
-              {darkMode ? <BsSunFill /> : <BsMoonFill />}
-            </Button>
-          </div>
-        </Container>
-      </Navbar>
-
       <Container
-        fluid="md"
-        className={`py-4 ${darkMode ? "bg-dark text-light" : "bg-light text-dark"}`}
-        style={{ minHeight: "100vh", transition: "all 0.3s ease" }}
-      >
-        {/* Main controls */}
+  fluid="md"
+  className="py-5"
+  style={{
+    backgroundColor: "var(--bg)",
+    color: "var(--text)",
+    minHeight: "100vh"
+  }}
+>
         <Row className="g-3 mb-4 justify-content-center">
           <Col xs={12} sm={6} md={5} lg={4}>
             <Form.Select
               size="lg"
               value={book}
               onChange={(e) => setBook(e.target.value)}
-              className="shadow-sm"
             >
-              <option value="">Select Book...</option>
+              <option value="">Book</option>
               {bibleBooks.map((b) => (
                 <option key={b.id} value={b.id}>
                   {b.display}
@@ -236,9 +200,8 @@ const Home = () => {
               value={chapter}
               onChange={(e) => setChapter(e.target.value)}
               disabled={!maxChapters}
-              className="shadow-sm"
             >
-              <option value="">Ch.</option>
+              <option value="">Chapter</option>
               {[...Array(maxChapters)].map((_, i) => (
                 <option key={i + 1} value={i + 1}>
                   {i + 1}
@@ -250,59 +213,64 @@ const Home = () => {
           <Col xs={6} sm={3} md={2}>
             <Form.Control
               size="lg"
-              placeholder="Verse (optional)"
+              placeholder="Verse"
               value={verse}
               onChange={(e) => setVerse(e.target.value)}
-              className="shadow-sm"
             />
           </Col>
         </Row>
 
-        {/* Navigation buttons */}
         <div className="d-flex flex-wrap gap-3 justify-content-center mb-5">
           <Button
-            variant={darkMode ? "outline-light" : "outline-dark"}
-            onClick={prevChapter}
-            disabled={!chapter || Number(chapter) <= 1}
-          >
-            ← Previous Chapter
-          </Button>
+          variant="outline-secondary"
+          onClick={prevChapter}
+          disabled={!chapter || Number(chapter) <= 1}
+        >
+          ← Previous Chapter
+        </Button>
 
-          <Button
-            variant={darkMode ? "outline-light" : "outline-dark"}
-            onClick={nextChapter}
-            disabled={!chapter || Number(chapter) >= maxChapters}
-          >
-            Next Chapter →
-          </Button>
+        <Button
+          variant="outline-secondary"
+          onClick={nextChapter}
+          disabled={!chapter || Number(chapter) >= maxChapters}
+        >
+          Next Chapter →
+        </Button>
         </div>
 
-        {/* Result display */}
         {result && (
-          <Card
-            className={`shadow-lg border-0 ${
-              darkMode ? "bg-secondary text-light" : "bg-white"
-            }`}
-          >
-            <Card.Header
-              className={`text-center fs-3 fw-bold py-3 ${
-                darkMode ? "bg-primary" : "bg-primary"
-              } text-white`}
-            >
-              {displayTitle}
-            </Card.Header>
-            <Card.Body
-              className="p-4 p-md-5"
-              style={{
-                fontFamily: "'Merriweather', Georgia, serif",
-                fontSize: "1.25rem",
-                lineHeight: 1.8,
-                whiteSpace: "pre-wrap",
-              }}
-            >
-              {result}
-            </Card.Body>
-          </Card>
+  <Card 
+    className="shadow-lg border-0"
+    style={{
+      backgroundColor: 'var(--card-bg)',
+      color: 'var(--text)',
+      borderColor: 'var(--border)',
+    }}
+  >
+    <Card.Header 
+      className="text-center fs-4 fw-bold py-3"
+      style={{
+        backgroundColor: 'var(--primary)',
+        color: '#ffffff',           // white text always looks good on primary color
+      }}
+    >
+      {bibleBooks.find(b => b.id === book)?.display.replace(/^Psalms$/, "Psalm") || "Bible"} {chapter}
+      {verse ? `:${verse}` : ""}
+    </Card.Header>
+
+    <Card.Body
+      className="p-4 p-md-5"
+      style={{
+        fontFamily: "'Merriweather', Georgia, serif",
+        fontSize: "1.25rem",
+        lineHeight: 1.8,
+        whiteSpace: "pre-wrap",
+        backgroundColor: 'var(--card-bg)',
+        color: 'var(--text)',
+      }}
+      dangerouslySetInnerHTML={{ __html: result }}
+    />
+  </Card>
         )}
       </Container>
     </>

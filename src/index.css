@@ -1,77 +1,80 @@
+/* ============================================= */
+/*          THEME VARIABLES & BASE               */
+/* ============================================= */
+
+:root {
+  --bg: #ffffff;
+  --text: #212529;
+  --muted: #6c757d;
+  --primary: #0d6efd;
+  --surface: #f8f9fa;
+  --card-bg: #ffffff;
+  --border: #dee2e6;
+}
+
+[data-theme="dark"] {
+  --bg: #121212;
+  --text: #e0e0e0;
+  --muted: #bbbbbb;
+  --primary: #0d6efd;
+  --surface: #1e1e1e;
+  --card-bg: #1e1e1e;
+  --border: #333;
+}
+
+
+
 body {
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background-color 0.3s ease, color 0.3s ease;
   margin: 0;
   padding: 0;
   font-family: 'Arial', sans-serif;
-  background-color: #f8f9fa;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* Make containers use theme */
+.container, .container-fluid {
+  background-color: var(--bg);
+  color: var(--text);
 }
 
-h1 {
-  font-size: 2.5rem;
-  color: #343a40;
+/* Cards */
+.card {
+  background-color: var(--card-bg);
+  border-color: var(--border);
+  color: var(--text);
 }
 
-#verse_result{
-  white-space: pre-line;
-  font-family: Georgia, 'Times New Roman', Times, serif;
-  font-size: 1rem;
-  line-height: 1.6;
-}
-#card-header{
-  font-size: 1.25rem;
-  font-weight: bold;
+.card-header {
+  background-color: var(--primary);
+  color: white;  /* keep white text on primary color */
 }
 
-.image{
-  display: block;
-  max-width:150px;
-  max-height:150px;
-  width: auto;
-  height: auto;  
-}
-.title-verse{
-  margin-left: auto; 
-  margin-right: 0;  
-  font-style: italic;
+/* Buttons - use Bootstrap vars or override */
+.btn-primary {
+  --bs-btn-bg: var(--primary);
+  --bs-btn-border-color: var(--primary);
+  --bs-btn-hover-bg: color-mix(in srgb, var(--primary) 90%, black);
 }
 
-.header {
-  text-align: center;
-  font-size: large;
-}
-.footer {
-  font-size: small;
-  text-align: center;
-}
-.form{
-  padding-top: 50px;
-  max-width: 800px;
-  margin: 0 auto;
-}
-#box{
-  padding-top: 30px;
+/* Verse number (already good, just adjust for dark) */
+.verse-number {
+  font-size: 0.85em;
+  color: #777777;
+  vertical-align: super;
+  margin-right: 0.4em;
+  user-select: none;
 }
 
-button {
-  font-size: 1rem;
+[data-theme="dark"] .verse-number {
+  color: #aaaaaa;
 }
 
-@media (max-width: 768px) {
-  h1 {
-    font-size: 2rem;
-  }
-
-  #card-header {
-    font-size: 1rem;
-  }
-
-  #verse_result {
-    font-size: 0.9rem;
-  }
-}
+/* Remove or comment out hard-coded colors you had */
+/*
+.bg-light { background-color: unset !important; }
+.bg-dark { background-color: unset !important; }
+.text-light { color: unset !important; }
+.text-dark { color: unset !important; }
+*/
