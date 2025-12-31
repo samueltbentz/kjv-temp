@@ -1,5 +1,4 @@
 // App.js (or your main page wrapper)
-import { useState, useEffect } from 'react';
 import Header from './Header';
 import Home from './Home';
 import Footer from './Footer';

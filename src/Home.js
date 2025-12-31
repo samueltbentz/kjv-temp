@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Container, Row, Col, Form, Button, Card, Navbar } from "react-bootstrap";
-import { BsSunFill, BsMoonFill } from "react-icons/bs";
+import { Container, Row, Col, Form, Button, Card } from "react-bootstrap";
 
 const bibleBooks = [
   { id: "genesis", display: "Genesis", chapters: 50 },
@@ -76,33 +75,24 @@ const Home = () => {
   const [chapter, setChapter] = useState("");
   const [verse, setVerse] = useState("");
   const [result, setResult] = useState("");
-  const [displayTitle, setDisplayTitle] = useState("");
 
   const selectedBookData = bibleBooks.find((b) => b.id === book);
   const maxChapters = selectedBookData?.chapters ?? 0;
 
   // Fetch function
-  const loadChapter = useCallback(async () => {
+  
+const loadChapter = useCallback(async () => {
   if (!book || !chapter) return;
 
   const bookKey = book.toLowerCase();
   const url = `./bible/${bookKey}.json`;
 
-  console.log("Attempting to fetch:", url);
-
   try {
     const res = await fetch(url);
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status} - ${res.statusText} (tried: ${url})`);
-    }
-
-    const contentType = res.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-      throw new Error(`Response is not JSON! Got: ${contentType}`);
-    }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const data = await res.json();
-    const bookNameFromJson = Object.keys(data)[0]; // still used for data access
+    const bookNameFromJson = Object.keys(data)[0];
     const chapIndex = Number(chapter) - 1;
 
     if (chapIndex < 0 || chapIndex >= data[bookNameFromJson].length) {
@@ -115,32 +105,19 @@ const Home = () => {
 
     if (verse) {
       const vIndex = Number(verse) - 1;
-      if (vIndex >= 0 && vIndex < verses.length) {
-        text = verses[vIndex];
-      } else {
-        text = "Verse not found";
-      }
+      text = verses[vIndex] || "Verse not found";
     } else {
       text = verses
-  .map((v, i) => `<span class="verse-number">[${i + 1}]</span>${v}`)
-  .join("\n");
+        .map((v, i) => `<span class="verse-number">[${i + 1}]</span> ${v}`)
+        .join("\n");
     }
 
-    // Use the pretty display name from bibleBooks
-    const currentBookDisplay = bibleBooks.find(b => b.id === book)?.display || bookNameFromJson;
-
-    setDisplayTitle(
-  `${
-    (bibleBooks.find(b => b.id === book)?.display || bookNameFromJson)
-      .replace(/^Psalms$/, "Psalm")
-  } ${chapter}${verse ? `:${verse}` : ""}`
-);
     setResult(text);
   } catch (err) {
-    console.error("Fetch failed:", err);
-    setResult(`Error: ${err.message}\n\nCheck console for details.`);
+    setResult("Error loading content");
   }
-}, [book, chapter, verse, bibleBooks]); // add bibleBooks to deps if needed (it's constant)
+}, [book, chapter, verse]); // ← removed bibleBooks (it's constant)
+
 
   // Reset chapter to 1 and verse when book changes
   useEffect(() => {
@@ -247,16 +224,16 @@ const Home = () => {
       borderColor: 'var(--border)',
     }}
   >
-    <Card.Header 
-      className="text-center fs-4 fw-bold py-3"
-      style={{
-        backgroundColor: 'var(--primary)',
-        color: '#ffffff',           // white text always looks good on primary color
-      }}
-    >
-      {bibleBooks.find(b => b.id === book)?.display.replace(/^Psalms$/, "Psalm") || "Bible"} {chapter}
-      {verse ? `:${verse}` : ""}
-    </Card.Header>
+<Card.Header
+  className="text-center fs-4 fw-bold py-3"
+  style={{
+    backgroundColor: "var(--primary)",
+    color: "#ffffff",
+  }}
+>
+  {bibleBooks.find(b => b.id === book)?.display.replace(/^Psalms$/, "Psalm") || "Bible"} {chapter}
+  {verse ? `:${verse}` : ""}
+</Card.Header>
 
     <Card.Body
       className="p-4 p-md-5"

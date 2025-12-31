@@ -1,4 +1,4 @@
-import { Container, Row, Col, Stack } from "react-bootstrap";
+import { Container, Stack } from "react-bootstrap";
 import Image from "react-bootstrap/Image";
 import arms from "./arms.png";
 
